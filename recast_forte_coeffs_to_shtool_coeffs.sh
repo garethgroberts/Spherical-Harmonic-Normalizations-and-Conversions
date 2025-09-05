@@ -16,11 +16,11 @@ cat temp1 temp2 | sort -n -k1,1 | awk '{print $2, $3, $4, $5}' > recast.sph
 python sph_conversion_to_sia_code.py
 
 # copy the resultant spherical harmonic coefficients to propmat and run propmat (best to run propmat locally):
-# cp dyn-surf-FR2021-L100_real_ggr.lm  /Users/grobert3/Documents/GRIC/Papers/Geoid_2023/fr22_geoid_scores_LMAX100/INPUT/RefGeo
-# ./Users/grobert3/Documents/GRIC/Papers/Geoid_2023/fr22_geoid_scores_LMAX100/ggr_run.sh
+# cp dyn-surf-FR2021-L100_real_ggr.lm */INPUT/RefGeo
+
 
 # copy output from propmat back to this directory:
-# cp /Users/grobert3/Documents/GRIC/Papers/Geoid_2023/fr22_geoid_scores_LMAX100/output_test0_LMAX100_RHOW1.03E+03_MIND0/SPH_REF_dyntopography ./
+# cp */output_test0_LMAX100_RHOW1.03E+03_MIND0/SPH_REF_dyntopography ./
 
 
 # convert spherical harmonic coefficients from propmat for use in pyshtools
