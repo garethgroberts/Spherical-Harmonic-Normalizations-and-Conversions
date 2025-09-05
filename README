@@ -1,0 +1,13 @@
+the files in this directory convert the spherical harmonic coefficients
+from forte & rowley (2022), provided by a. forte, from their complex 
+form with the condon-shortley phase, to real form without the condon-shortley 
+phase. the resultant coefficients can then be inserted into s. ghelichkhan's 
+propmat code (with an additional multiplicative sqrt(4pi) term), and
+used in pyshtools. 
+
+to run the code first look at 
+
+./recast_forte_coeffs_to_shtool_coeffs.sh
+
+gareth roberts
+4 sept 2025

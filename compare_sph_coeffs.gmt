@@ -1,0 +1,81 @@
+#!/bin/bash
+
+gmt gmtset FONT_LABEL = 12p
+gmt gmtset FONT_ANNOT_PRIMARY = 12p
+gmt gmtset FONT_ANNOT_SECONDARY = 12p
+ 
+forte_coeffs=./forte_real_no_cs.lm
+sia_coeffs=./sia_real_no_cs.lm
+
+rgn=-R-500/500/-500/500
+scl=-JX4i/4i 
+
+gmt psbasemap $rgn $scl -Ba200f100:"Value of trig coefficient (propmat)":/a200f100:"Value of trig coefficient (FR21 @[\rightarrow@[ real)":WeSn -K -P -Y6i > coeff_comp.ps
+
+gmt psxy $rgn $scl -W0.01i -K -O <<END>> coeff_comp.ps
+-500 -500
+500 500
+END
+
+awk '{print $1}' < $forte_coeffs > temp1
+awk '{print $1}' < $sia_coeffs > temp2
+paste temp1 temp2 | gmt psxy $rgn $scl -Sc0.05i -Ba0 -Gwhite -W0.01i -O -K  >> coeff_comp.ps
+
+awk '{print $2}' < $forte_coeffs > temp1
+awk '{print $2}' < $sia_coeffs > temp2
+paste temp1 temp2 | gmt psxy $rgn $scl -Sc0.05i -Gblack -W0.01i -Ba0 -O -K >> coeff_comp.ps
+echo "a" | gmt pstext $rgn $scl -F+f24p,+cTL -K -O -D0.1i/-0.1i >> coeff_comp.ps
+
+# plot residuals... 
+rgn=-R-5/5200/-0.002/0.002
+#rgn=-R-5/5200/-910/500
+
+scl=-JX4i/4i 
+
+gmt psbasemap $rgn $scl -Ba1000f500:"Coefficient":/a0.001f0.0002:"Residual (FR21@[-@[propmat)":WeSn -K -O -X5.5i >> coeff_comp.ps
+#gmt psbasemap $rgn $scl -Ba500f100:"Coefficient":/a200f100:"Residual":WeSn -K -O -X5i >> coeff_comp.ps
+
+awk '{print $1}' < $forte_coeffs > temp1
+awk '{print $1}' < $sia_coeffs > temp2
+paste temp1 temp2 | awk '{print NR, $1-$2}' | gmt psxy $rgn $scl -Sc0.05i -Ba0 -Gwhite -W0.01i -O -K >> coeff_comp.ps
+
+awk '{print $2}' < $forte_coeffs > temp1
+awk '{print $2}' < $sia_coeffs > temp2
+paste temp1 temp2 | awk '{print NR, $1-$2}' | gmt psxy $rgn $scl -Sc0.05i -Ba0 -Gblack -W0.01i -O -K >> coeff_comp.ps
+echo "b" | gmt pstext $rgn $scl -F+f24p,+cTL -K -O -D0.1i/-0.1i >> coeff_comp.ps
+
+# plot residuals histogram... 
+rgn=-R-0.002/0.002/0/100
+scl=-JX4i/4i 
+
+paste temp1 temp2 | awk '{print $1-$2}' | gmt pshistogram $rgn -Ba0.001f0.0002:"Residual (FR21@[-@[propmat)":/a50f10:"Frequency, %":WeSn -T0.0001 -Z1 -F $scl -W0.01i -Gblack -O -K -Y-5i -X-5.5i >> coeff_comp.ps
+echo "c" | gmt pstext $rgn $scl -F+f24p,+cTL -D0.1i/-0.1i -K -O >> coeff_comp.ps
+
+
+# plot grid differences...
+rgn=-R-6000/6000/-6000/6000
+scl=-JX4i/4i 
+
+#forte_grid=From_AForte230725/4Gareth/dyn-surf-FR2021-L100.xyz 
+forte_grid=fortegrd_FR21.xyz
+sia_grid=SPH_REF_dyntopography.xyz
+
+gmt psbasemap $rgn $scl -Ba2000f500:"Grid value (propmat), m":/a2000f500:"Grid value (FR21), m":WeSn -K -O -X5.5i >> coeff_comp.ps
+
+gmt psxy $rgn $scl -W0.01i -K -O <<END>> coeff_comp.ps
+-6000 -6000
+6000 6000
+END
+
+# awk '{printf "%.2f %.2f %.2f\n", $1, $2, $3}' < $forte_grid | sort -n -k1,1 -k2,2 | tee out1 | awk '{print $3}' > temp1
+# awk '{printf "%.2f %.2f %.2f\n", $2, $1-180, $3}' < $sia_grid | sort -n -k1,1 -k2,2  | tee out2 | awk '{print $3}' > temp2
+
+awk '{print $3}' < $forte_grid > temp1
+awk '{print $3}' < $sia_grid > temp2
+paste temp1 temp2 | gmt psxy $rgn $scl -Sc0.05i -Ba0 -Gwhite -W0.01i -O -K >> coeff_comp.ps
+
+echo "d" | gmt pstext $rgn $scl -F+f24p,+cTL -O -D0.1i/-0.1i >> coeff_comp.ps
+
+ps2eps -f coeff_comp.ps
+gmt psconvert coeff_comp.eps
+open coeff_comp.jpg
